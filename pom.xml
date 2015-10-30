@@ -71,4 +71,8 @@
 		</plugins>
 	</build>
 
+	<modules>
+		<module>service</module>
+		<module>service-drools-impl</module>
+	</modules>
 </project>
