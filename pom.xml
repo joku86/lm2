@@ -11,6 +11,7 @@
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<!-- dependencies -->
+		<tyrus.version>1.12</tyrus.version>
 		<amqp.client.version>3.5.5</amqp.client.version>
 		<jackson.mapper.version>2.6.2</jackson.mapper.version>
 		<log4j.version>1.2.17</log4j.version>
@@ -24,6 +25,32 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>javax.websocket</groupId>
+				<artifactId>javax.websocket-api</artifactId>
+				<version>1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.tyrus</groupId>
+				<artifactId>tyrus-server</artifactId>
+				<version>${tyrus.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.tyrus</groupId>
+				<artifactId>tyrus-client</artifactId>
+				<version>${tyrus.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.tyrus</groupId>
+				<artifactId>tyrus-container-grizzly-server</artifactId>
+				<version>${tyrus.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.tyrus</groupId>
+				<artifactId>tyrus-container-jdk-client</artifactId>
+				<version>${tyrus.version}</version>
+			</dependency>
+
 
 			<dependency>
 				<groupId>junit</groupId>
@@ -68,11 +95,14 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+
+
 		</plugins>
 	</build>
 
 	<modules>
-		<module>service</module>
+		<module>service-provider</module>
 		<module>service-drools-impl</module>
+		<module>livemonitoring-ws-transmitter</module>
 	</modules>
 </project>

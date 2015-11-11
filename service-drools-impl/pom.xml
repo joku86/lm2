@@ -7,4 +7,11 @@
   </parent>
   <artifactId>service-drools-impl</artifactId>
   <name>service-drools-impl</name>
+  <dependencies>
+  	<dependency>
+  		<groupId>de.tiq.solutions</groupId>
+  		<artifactId>service-provider</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
 </project>
