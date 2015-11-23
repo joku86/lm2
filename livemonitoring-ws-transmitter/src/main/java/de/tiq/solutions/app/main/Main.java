@@ -22,6 +22,7 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.FileResource;
+import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -39,13 +40,15 @@ public class Main {
 		String host = "localhost";
 		String owner = "kunde1";
 		int port = 8443;
+		int numberOfClients = 1;
 		// String host = "192.168.1.147";
 
 		Server server = new Server();
 		ServletContextHandler context = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS
 				| ServletContextHandler.SECURITY);
-		addWebsocketReceiver(context, server, host, port);
 
+		setToSecure(server, host, port);
+		addWebsocket(context);
 		try {
 			addServlets(context, owner);
 			context.setSecurityHandler(addSecurityConstraint());
@@ -72,20 +75,16 @@ public class Main {
 		}
 	}
 
-	private static void addWebsocketReceiver(ServletContextHandler context, Server server, String host, int port) throws ServletException,
+	private static void setToSecure(Server server, String host, int port) throws ServletException,
 			DeploymentException {
 
-		ServerContainer wsContainer = WebSocketServerContainerInitializer
-				.configureContext(context);
-		wsContainer.addEndpoint(WsServerReceiverEndpoint.class);
-
 		SslContextFactory sslContextFactory = new SslContextFactory();
-		sslContextFactory.setKeyStoreResource(new FileResource(new
-				File("E:/tmp/3/server.jks")));
+		sslContextFactory.setKeyStoreResource(new PathResource(new
+				File(Main.class.getResource("/server.jks").getFile())));
 		sslContextFactory.setKeyStorePassword("password");
 		sslContextFactory.setKeyManagerPassword("password");
 		sslContextFactory.setTrustStoreResource(new FileResource(new
-				File("E:/tmp/3/trust.jks")));
+				File(Main.class.getResource("/trust.jks").getFile())));
 		sslContextFactory.setTrustStorePassword("password");
 		sslContextFactory.setWantClientAuth(true);
 
@@ -103,6 +102,17 @@ public class Main {
 
 	}
 
+	public static void addWebsocket(ServletContextHandler context) throws ServletException, DeploymentException {
+
+		ServerContainer wsContainer = WebSocketServerContainerInitializer
+				.configureContext(context);
+		wsContainer.addEndpoint(WsServerReceiverEndpoint.class);
+
+		// ClientEndpointConfig configuration=
+		// ClientEndpointConfig.Builder.create().build();
+
+	}
+
 	/**
 	 * replace with authentification on RR-Plugin
 	 * 
@@ -112,7 +122,7 @@ public class Main {
 	private static ConstraintSecurityHandler addSecurityConstraint() {
 
 		Constraint constraint = new Constraint();
-		constraint.setName(Constraint.__BASIC_AUTH);
+		constraint.setName(Constraint.__FORM_AUTH);
 		constraint.setRoles(new String[] { "user", "admin", "moderator" });
 		constraint.setAuthenticate(true);
 
@@ -124,6 +134,7 @@ public class Main {
 		securityHandler.addConstraintMapping(constraintMapping);
 		HashLoginService loginService = new HashLoginService();
 		loginService.putUser("username", new Password("pass"), new String[] { "user" });
+		loginService.putUser("admin", new Password("admin"), new String[] { "admin" });
 
 		securityHandler.setLoginService(loginService);
 		// BasicAuthenticator authenticator = new BasicAuthenticator();

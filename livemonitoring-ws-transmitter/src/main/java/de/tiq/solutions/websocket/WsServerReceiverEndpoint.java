@@ -11,7 +11,9 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.apache.log4j.Logger;
 
-@ServerEndpoint(value = "/monitoring/consumer")
+import de.tiq.solutions.authentification.AuthInstansObserver;
+
+@ServerEndpoint(value = "/monitoring/consumer", configurator = AuthInstansObserver.class)
 public class WsServerReceiverEndpoint {
 	private static final Logger logger = Logger.getLogger("WsServerReceiverEndpoint");
 
@@ -22,7 +24,6 @@ public class WsServerReceiverEndpoint {
 
 	@OnClose
 	public void onClose(Session session) {
-
 		try {
 			session.close();
 			getLogger().info("Session beendet: " + session.getId());
@@ -40,17 +41,10 @@ public class WsServerReceiverEndpoint {
 
 	@OnMessage
 	public void onMessage(String message, Session session) {
-		System.out.println("from client  " + message);
-		try {
-			session.getBasicRemote().sendText("back from server");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		DataAdapter.getInstance().update(message);
 	}
 
 	public static synchronized Logger getLogger() {
 		return logger;
 	}
-
 }
