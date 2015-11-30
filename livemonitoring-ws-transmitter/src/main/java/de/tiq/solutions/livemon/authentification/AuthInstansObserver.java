@@ -1,4 +1,4 @@
-package de.tiq.solutions.authentification;
+package de.tiq.solutions.livemon.authentification;
 
 import java.security.Principal;
 
@@ -8,9 +8,7 @@ import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
 import javax.websocket.server.ServerEndpointConfig.Configurator;
 
-import org.eclipse.jetty.servlet.ServletContextHandler;
-
-import de.tiq.solutions.servlets.WorkingServlet;
+import de.tiq.solutions.livemon.websocket.WsServerReceiverEndpoint;
 
 public class AuthInstansObserver extends Configurator {
 
@@ -26,7 +24,13 @@ public class AuthInstansObserver extends Configurator {
 
 	// WorkingServlet.getLoggedUser
 	public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
-
+		try {
+			WsServerReceiverEndpoint new_name = (WsServerReceiverEndpoint) endpointClass.newInstance();
+			return (T) new_name;
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		System.out.println("gib mir instanz");
 
 		return null;

@@ -1,4 +1,4 @@
-package de.tiq.solutions.app.main;
+package de.tiq.solutions.livemon.app.main;
 
 import java.io.File;
 
@@ -29,10 +29,10 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
-import de.tiq.solutions.servlets.EnterServlet;
-import de.tiq.solutions.servlets.LogOutServlet;
-import de.tiq.solutions.servlets.WorkingServlet;
-import de.tiq.solutions.websocket.WsServerReceiverEndpoint;
+import de.tiq.solutions.livemon.servlets.EnterServlet;
+import de.tiq.solutions.livemon.servlets.LogOutServlet;
+import de.tiq.solutions.livemon.servlets.WorkingServlet;
+import de.tiq.solutions.livemon.websocket.WsServerReceiverEndpoint;
 
 public class Main {
 

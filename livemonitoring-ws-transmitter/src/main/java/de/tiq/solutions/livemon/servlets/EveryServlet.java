@@ -1,4 +1,4 @@
-package de.tiq.solutions.servlets;
+package de.tiq.solutions.livemon.servlets;
 
 import java.io.IOException;
 

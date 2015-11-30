@@ -1,4 +1,4 @@
-package de.tiq.solutions.websocket;
+package de.tiq.solutions.livemon.websocket;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

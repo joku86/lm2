@@ -1,4 +1,4 @@
-package de.tiq.solutions.servlets;
+package de.tiq.solutions.livemon.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,7 +15,7 @@ import org.eclipse.jetty.security.DefaultUserIdentity;
 import org.eclipse.jetty.security.authentication.SessionAuthentication;
 import org.eclipse.jetty.server.UserIdentity;
 
-import de.tiq.solutions.websocket.WsServerReceiverEndpoint;
+import de.tiq.solutions.livemon.websocket.WsServerReceiverEndpoint;
 
 public class WorkingServlet extends HttpServlet {
 

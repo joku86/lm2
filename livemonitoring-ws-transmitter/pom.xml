@@ -69,7 +69,6 @@
 			<artifactId>http2-server</artifactId>
 			<version>9.3.5.v20151012</version>
 		</dependency>
-
 	</dependencies>
 
 </project>

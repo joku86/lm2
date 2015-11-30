@@ -1,4 +1,4 @@
-package de.tiq.solutions.websocket;
+package de.tiq.solutions.livemon.websocket;
 
 import java.io.IOException;
 
@@ -11,7 +11,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.apache.log4j.Logger;
 
-import de.tiq.solutions.authentification.AuthInstansObserver;
+import de.tiq.solutions.livemon.authentification.AuthInstansObserver;
 
 @ServerEndpoint(value = "/monitoring/consumer", configurator = AuthInstansObserver.class)
 public class WsServerReceiverEndpoint {
