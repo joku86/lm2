@@ -104,5 +104,7 @@
 		<module>service-provider</module>
 		<module>service-drools-impl</module>
 		<module>livemonitoring-ws-transmitter</module>
+		<module>service-java-impl</module>
+		<module>livemonitoring-model</module>
 	</modules>
 </project>
