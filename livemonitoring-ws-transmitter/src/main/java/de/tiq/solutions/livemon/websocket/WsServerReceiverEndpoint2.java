@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 
 //@ServerEndpoint(value = "/monitoring/consumer")
-public class WsServerReceiverEndpoint implements WebSocketListener {
+public class WsServerReceiverEndpoint2 implements WebSocketListener {
 	private static final Logger logger = Logger.getLogger("WsServerReceiverEndpoint");
 
 	@OnOpen
@@ -63,7 +63,7 @@ public class WsServerReceiverEndpoint implements WebSocketListener {
 	public void onWebSocketConnect(org.eclipse.jetty.websocket.api.Session session) {
 		 
 		try {
-			session.getRemote().sendString("zurück von dem server");
+			session.getRemote().sendString("zurück von dem server ws 2");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

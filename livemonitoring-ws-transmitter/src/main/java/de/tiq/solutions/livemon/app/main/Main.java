@@ -1,163 +1,243 @@
 package de.tiq.solutions.livemon.app.main;
 
 import java.io.File;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.servlet.ServletException;
-import javax.websocket.DeploymentException;
+import javax.servlet.DispatcherType;
+import javax.ws.rs.core.Application;
 
+import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.web.env.EnvironmentLoaderListener;
+import org.apache.shiro.mgt.SecurityManager;
 import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.HashLoginService;
-import org.eclipse.jetty.security.authentication.FormAuthenticator;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.FileResource;
-import org.eclipse.jetty.util.resource.PathResource;
-import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
-import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
+import org.eclipse.jetty.webapp.WebAppContext;
 
-import de.tiq.solutions.livemon.servlets.EnterServlet;
-import de.tiq.solutions.livemon.servlets.LogOutServlet;
-import de.tiq.solutions.livemon.servlets.WorkingServlet;
-import de.tiq.solutions.livemon.websocket.WsServerReceiverEndpoint;
+import de.tiq.solutions.livemon.websocket.WebSocketServer;
+import de.tiq.solutions.livemon.websocket.WebSocketServer.WsReceiver;
+import de.tiq.solutions.livemon.websocket.WebSocketTransmitter.WsSender;
+import de.tiq.solutions.rest.LiveMonitoringRestApi;
 
-public class Main {
+public class Main extends Application {
 
-	public static void main(String[] args) throws ServletException, DeploymentException {
-		String host = "localhost";
-		String owner = "kunde1";
-		int port = 8443;
-		int numberOfClients = 1;
-		// String host = "192.168.1.147";
+	private static WebAppContext setupWebAppContext(ContextHandlerCollection contexts) {
 
-		Server server = new Server();
-		ServletContextHandler context = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS
-				| ServletContextHandler.SECURITY);
-
-		setToSecure(server, host, port);
-		addWebsocket(context);
-		try {
-			addServlets(context, owner);
-			context.setSecurityHandler(addSecurityConstraint());
-
-			ResourceHandler resource_handler = new ResourceHandler();
-			// resource_handler.setDirectoriesListed(true);
-			resource_handler.setResourceBase("./webapp");
-
-			HandlerList handlers = new HandlerList();
-			handlers.setHandlers(new Handler[] { resource_handler, context });
-			server.setHandler(handlers);
-
-			// server.setHandler(context);
-			server.start();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		WebAppContext webApp = new WebAppContext();
+		webApp.setContextPath("/livemon");
+		File warPath = new File("../livemonitoring-web");
+		if (warPath.isDirectory()) {
+			// Development mode, read from FS
+			 //webApp.setDescriptor(warPath+"/WEB-INF/web.xml");
+			webApp.setResourceBase(warPath.getPath());
+			webApp.setParentLoaderPriority(true);
+		} else {
+			System.out.println("else");
 		}
-		try {
-			server.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		// Explicit bind to root
+		webApp.addServlet(new ServletHolder(new DefaultServlet()), "/*");
+		contexts.addHandler(webApp);
+		ErrorPageErrorHandler errorHandler = new ErrorPageErrorHandler();
+	    errorHandler.addErrorPage(404, "/404.html");
+	    webApp.setErrorHandler(errorHandler);
+
+//		webApp.addServlet(new ServletHolder(new DefaultServlet() {
+//			  @Override
+//			  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//			    response.getWriter().append("<html><form method='POST' action='/j_security_check'>"
+//			      + "<input type='text' name='j_username'/>"
+//			      + "<input type='password' name='j_password'/>"
+//			      + "<input type='submit' value='Login'/></form></html>");
+//			    }
+//			}), "/login.jsp");
+
+	 
+		
+		return webApp;
+
+	}
+
+	private static void setuShiro(WebAppContext webapp) {
+//
+//		final ServletHolder cxfServletHolder = new ServletHolder(new CXFNonSpringJaxrsServlet());
+//		cxfServletHolder.setInitParameter("javax.ws.rs.Application", Main.class.getName());
+//		cxfServletHolder.setName("rest");
+//		cxfServletHolder.setForcedPath("rest");
+//
+//		webapp.setSessionHandler(new SessionHandler());
+//		webapp.addServlet(cxfServletHolder, "/api/*");
+
+		
+	   
+//		webapp.addFilter(new FilterHolder(new CorsFilter()), "/*", EnumSet.allOf(DispatcherType.class));
+ 		
+		
+		webapp.setInitParameter("shiroConfigLocations", Main.class.getClassLoader().getResource("shiro.ini").toString());
+ 		  IniSecurityManagerFactory factory = new IniSecurityManagerFactory(Main.class.getClassLoader().getResource("shiro.ini").toString());
+ 		    SecurityManager securityManager = factory.getInstance();
+ 		    org.apache.shiro.SecurityUtils.setSecurityManager(securityManager);
+
+		//Create and init the Shiro filter that will lookup and use environment we just created     
+		    webapp.addFilter(
+		        "org.apache.shiro.web.servlet.ShiroFilter", "/*",EnumSet.allOf(DispatcherType.class));
+		    webapp.addEventListener(new EnvironmentLoaderListener());
+	}
+
+//	private static void setToSecure(Server server, String host, int port) throws ServletException {
+//
+//		SslContextFactory sslContextFactory = new SslContextFactory();
+//		sslContextFactory
+//				.setKeyStoreResource(new PathResource(new File(Main.class.getResource("/server.jks").getFile())));
+//		sslContextFactory.setKeyStorePassword("password");
+//		sslContextFactory.setKeyManagerPassword("password");
+//		sslContextFactory
+//				.setTrustStoreResource(new PathResource(new File(Main.class.getResource("/trust.jks").getFile())));
+//		sslContextFactory.setTrustStorePassword("password");
+//		// sslContextFactory.setWantClientAuth(true);
+//
+//		SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory,
+//				HttpVersion.HTTP_1_1.asString());
+//		HttpConfiguration http_config = new HttpConfiguration();
+//		http_config.setSecureScheme("https");
+//		http_config.setSecurePort(port);
+//		HttpConfiguration https_config = new HttpConfiguration(http_config);
+//		https_config.addCustomizer(new SecureRequestCustomizer());
+//		ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory,
+//				new HttpConnectionFactory(https_config));
+//		sslConnector.setHost(host);
+//		sslConnector.setPort(5671);
+//
+//		server.addConnector(sslConnector);
+//	}
+
+	private static Server setupJettyServer(boolean ssl,int port) {
+
+		final Server server = new Server();
+		ServerConnector connector = null;
+
+		if (ssl) {
+			HttpConfiguration httpConfig = new HttpConfiguration();
+			httpConfig.setSecureScheme("https");
+			httpConfig.setSecurePort(port);
+			httpConfig.setOutputBufferSize(32768);
+			HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
+			SecureRequestCustomizer src = new SecureRequestCustomizer();
+			// Only with Jetty 9.3.x
+			// src.setStsMaxAge(2000);
+			// src.setStsIncludeSubDomains(true);
+			httpsConfig.addCustomizer(src);
+			connector = new ServerConnector(server,
+					new SslConnectionFactory(getSslContextFactory(), HttpVersion.HTTP_1_1.asString()),
+					new HttpConnectionFactory(httpsConfig));
+		} else {
+			connector = new ServerConnector(server);
 		}
+		// Set some timeout options to make debugging easier.
+		int timeout = 1000 * 30;
+		connector.setIdleTimeout(timeout);
+		connector.setSoLingerTime(-1);
+		connector.setHost("127.0.0.1");
+		connector.setPort(port);
+
+		server.addConnector(connector);
+
+		return server;
 	}
 
-	private static void setToSecure(Server server, String host, int port) throws ServletException,
-			DeploymentException {
+	private static void setupNotebookServer(WebAppContext webapp) {
+		WebSocketServer lm = new WebSocketServer();
+		String maxTextMessageSize = "9000";
+		final ServletHolder servletHolder = new ServletHolder();
+		servletHolder.setInitParameter("maxTextMessageSize", maxTextMessageSize);
 
-		SslContextFactory sslContextFactory = new SslContextFactory();
-		sslContextFactory.setKeyStoreResource(new PathResource(new
-				File(Main.class.getResource("/server.jks").getFile())));
-		sslContextFactory.setKeyStorePassword("password");
-		sslContextFactory.setKeyManagerPassword("password");
-		sslContextFactory.setTrustStoreResource(new FileResource(new
-				File(Main.class.getResource("/trust.jks").getFile())));
-		sslContextFactory.setTrustStorePassword("password");
-		sslContextFactory.setWantClientAuth(true);
-
-		SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString());
-		HttpConfiguration http_config = new HttpConfiguration();
-		http_config.setSecureScheme("https");
-		http_config.setSecurePort(port);
-		HttpConfiguration https_config = new HttpConfiguration(http_config);
-		https_config.addCustomizer(new SecureRequestCustomizer());
-		ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, new HttpConnectionFactory(https_config));
-		sslConnector.setHost(host);
-		sslConnector.setPort(port);
-
-		server.addConnector(sslConnector);
-
+		final ServletContextHandler cxfContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		webapp.addServlet(new ServletHolder(WsReceiver.class), "/ws/receiver");
+		webapp.addServlet(new ServletHolder(WsSender.class), "/ws/transmitter");
 	}
 
-	public static void addWebsocket(ServletContextHandler context) throws ServletException, DeploymentException {
+	public static void main(String[] args) throws Exception {
+		Server jettyWebServer = setupJettyServer(true,8443);
+		ContextHandlerCollection contexts = new ContextHandlerCollection();
+		jettyWebServer.setHandler(contexts);
 
-		ServerContainer wsContainer = WebSocketServerContainerInitializer
-				.configureContext(context);
-		wsContainer.addEndpoint(WsServerReceiverEndpoint.class);
-
-		// ClientEndpointConfig configuration=
-		// ClientEndpointConfig.Builder.create().build();
-
-	}
-
-	/**
-	 * replace with authentification on RR-Plugin
-	 * 
-	 * @param context
-	 * @return
-	 */
-	private static ConstraintSecurityHandler addSecurityConstraint() {
-
-		Constraint constraint = new Constraint();
-		constraint.setName(Constraint.__FORM_AUTH);
-		constraint.setRoles(new String[] { "user", "admin", "moderator" });
-		constraint.setAuthenticate(true);
-
-		ConstraintMapping constraintMapping = new ConstraintMapping();
-		constraintMapping.setConstraint(constraint);
-		constraintMapping.setPathSpec("/monitoring/*");
-
-		ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
-		securityHandler.addConstraintMapping(constraintMapping);
-		HashLoginService loginService = new HashLoginService();
-		loginService.putUser("username", new Password("pass"), new String[] { "user" });
-		loginService.putUser("admin", new Password("admin"), new String[] { "admin" });
-
-		securityHandler.setLoginService(loginService);
-		// BasicAuthenticator authenticator = new BasicAuthenticator();
-
-		FormAuthenticator authenticator = new
-				FormAuthenticator("/monitoring/login", "/monitoring/login", false);
-
-		securityHandler.setAuthenticator(authenticator);
-		return securityHandler;
-	}
-
-	private static void addServlets(ServletContextHandler context, String owner) {
-		// context.addServlet(new ServletHolder(new EveryServlet()),
-		// "/*");
-		context.addServlet(new ServletHolder(new LogOutServlet()),
-				"/monitoring/logout");
-		context.addServlet(new ServletHolder(new WorkingServlet()),
-				"/monitoring/" + owner);
+		// // Enable javax.websocket configuration for the context
+		// ServerContainer wsContainer =
+		// WebSocketServerContainerInitializer.configureContext(context);
 		//
-		// context.addServlet(new ServletHolder(new ErrorServlet()),
-		// "/loginerror");
-		context.addServlet(new ServletHolder(new EnterServlet()),
-				"/monitoring/login");
+		// // Add your websockets to the container
+		// wsContainer.addEndpoint(EchoJsrSocket.class);
+
+		// Web UI
+		final WebAppContext webApp = setupWebAppContext(contexts);
+		setuShiro(webApp);
+
+		setupNotebookServer(webApp);
+		try {
+			jettyWebServer.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+
+	// private static void setupNotebookServer(WebAppContext webapp,
+	// ZeppelinConfiguration conf) {
+	// notebookWsServer = new NotebookServer();
+	// String maxTextMessageSize = conf.getWebsocketMaxTextMessageSize();
+	// final ServletHolder servletHolder = new ServletHolder(notebookWsServer);
+	// servletHolder.setInitParameter("maxTextMessageSize", maxTextMessageSize);
+	//
+	// final ServletContextHandler cxfContext = new
+	// ServletContextHandler(ServletContextHandler.SESSIONS);
+	//
+	// webapp.addServlet(servletHolder, "/ws/*");
+	// }
+
+	private static SslContextFactory getSslContextFactory() {
+		SslContextFactory sslContextFactory = new SslContextFactory();
+
+		// Set keystore
+		sslContextFactory.setKeyStorePath(Main.class.getClassLoader().getResource("server.jks").getFile());
+		sslContextFactory.setKeyStoreType("JKS");
+		sslContextFactory.setKeyStorePassword("password");
+		// sslContextFactory.setKeyManagerPassword(conf.getKeyMa
+		// nagerPassword());
+		// Set truststore
+		sslContextFactory.setTrustStorePath(Main.class.getClassLoader().getResource("trust.jks").getFile());
+		sslContextFactory.setTrustStoreType("JKS");
+		sslContextFactory.setTrustStorePassword("password");
+		// sslContextFactory.setNeedClientAuth(conf.useClientAuth());
+		return sslContextFactory;
+	}
+
+	@Override
+	public Set<Class<?>> getClasses() {
+		Set<Class<?>> classes = new HashSet<Class<?>>();
+		return classes;
+	}
+
+	@Override
+	public Set<Object> getSingletons() {
+		Set<Object> singletons = new HashSet<>();
+
+		/** Rest-api root endpoint */
+		LiveMonitoringRestApi root = new LiveMonitoringRestApi();
+		singletons.add(root);
+
+		return singletons;
 	}
 
 }
