@@ -107,5 +107,6 @@
 		<module>livemonitoring-model</module>
 		<module>livemonitoring-web</module>
 		<module>livemonitoring-server</module>
+		
 	</modules>
 </project>

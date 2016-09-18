@@ -9,9 +9,15 @@ import javax.servlet.DispatcherType;
 import javax.ws.rs.core.Application;
 
 import org.apache.shiro.config.IniSecurityManagerFactory;
-import org.apache.shiro.web.env.EnvironmentLoaderListener;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.web.env.EnvironmentLoaderListener;
 import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -21,9 +27,10 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -34,14 +41,41 @@ import de.tiq.solutions.rest.LiveMonitoringRestApi;
 
 public class Main extends Application {
 
+	
+	private static final SecurityHandler basicAuth(String username, String password, String realm) {
+
+        Constraint constraint = new Constraint();
+        constraint.setName(Constraint.__FORM_AUTH);
+        constraint.setRoles(new String[]{"user"});
+        constraint.setAuthenticate(true);
+        HashLoginService loginService = new HashLoginService();
+        loginService.putUser("ich", new Password("ich"), new String[] {"user"});
+
+        FormAuthenticator authenticator = new FormAuthenticator("/login.html", "/404.html", false);
+        ConstraintMapping cm = new ConstraintMapping();
+        cm.setConstraint(constraint);
+        cm.setPathSpec("/*");
+        
+        ConstraintSecurityHandler csh = new ConstraintSecurityHandler();
+        csh.setAuthenticator(authenticator);
+        csh.setRealmName("myrealm");
+        csh.addConstraintMapping(cm);
+        csh.setLoginService(loginService);
+        
+        return csh;
+    	
+}
 	private static WebAppContext setupWebAppContext(ContextHandlerCollection contexts) {
 
 		WebAppContext webApp = new WebAppContext();
 		webApp.setContextPath("/livemon");
+		webApp.setSecurityHandler(basicAuth("scott", "tiger", "Private!"));
+		
+		
 		File warPath = new File("../livemonitoring-web");
 		if (warPath.isDirectory()) {
 			// Development mode, read from FS
-			 //webApp.setDescriptor(warPath+"/WEB-INF/web.xml");
+			 webApp.setDescriptor(warPath+"src/main/webapp/WEB-INF/web.xml");
 			webApp.setResourceBase(warPath.getPath());
 			webApp.setParentLoaderPriority(true);
 		} else {
@@ -182,7 +216,7 @@ public class Main extends Application {
 
 		// Web UI
 		final WebAppContext webApp = setupWebAppContext(contexts);
-		setuShiro(webApp);
+//		setuShiro(webApp);
 
 		setupNotebookServer(webApp);
 		try {
