@@ -71,7 +71,7 @@ public class LmConfigs {
 			File file = new File("../config/lm_config.xml");
 			System.out.println(file.getAbsolutePath());
 			Settings settings = (Settings)jc.createUnmarshaller().unmarshal(file);
- 		System.out.println(settings.getSetting().size());
+ 		System.out.println(settings.getSetting().get(0).getName());
 		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

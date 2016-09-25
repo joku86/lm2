@@ -5,13 +5,18 @@ interface NumberOfConnection {
   value:number;
 }
 @Component({
-    selector: 'my-app',
+    selector: 'configs',
 	 moduleId: module.id,
-    templateUrl: 'templates/main.html',
+    template: `<p-panel header="Nicht Konfiguriert" [collapsed]="true" [toggleable]="true" >
+	<div>
+		
+ <p-dropdown [options]="numberOfConnection" [(ngModel)]="selectedCity" [style]="{'width':'50px'}" ></p-dropdown>
+	</div>
+</p-panel>`,
      styles: ['h1 { color: red; }']
 })
 
-export class AppComponent { 
+export class ConfigComponent { 
     
     selectedQueueNumber: string;
 
