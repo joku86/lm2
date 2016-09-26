@@ -47,7 +47,11 @@ public class CorsFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
 	  
-	 
+//	  Subject subject = org.apache.shiro.SecurityUtils.getSubject();
+//	  if(subject.getPrincipals()!=null)
+//	System.out.println("cors s sagt "+subject.toString());
+//	  else
+//		System.out.println("cors filter sagt "+subject.isAuthenticated());
 	  
     String sourceHost = ((HttpServletRequest) request).getHeader("Origin");
     String origin = "";

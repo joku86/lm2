@@ -17,16 +17,10 @@
 
 package de.tiq.solutions.rest;
 
-import javax.rmi.CORBA.Util;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-/**
- * Zeppelin root rest api endpoint.
- *
- * @since 0.3.4
- */
 @Path("/")
 public class LiveMonitoringRestApi {
 

@@ -19,9 +19,6 @@ package de.tiq.solutions.rest;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Response wrapper.
- */
 @XmlRootElement
 public class NotebookResponse {
   private String msg;
