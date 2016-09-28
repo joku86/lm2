@@ -6,16 +6,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.ServletException;
+import javax.websocket.DeploymentException;
 import javax.ws.rs.core.Application;
 
 import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
+//github.com/joku86/lm2.git
 import org.apache.shiro.web.env.EnvironmentLoaderListener;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.SecurityHandler;
-import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -28,9 +30,11 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
+//github.com/joku86/lm2.git
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.util.security.Credential;
+import org.eclipse.jetty.util.security.Password;
+//github.com/joku86/lm2.git
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
@@ -41,16 +45,41 @@ import de.tiq.solutions.rest.LiveMonitoringRestApi;
 
 public class Main extends Application {
 
+ 
+	
+	private static final SecurityHandler basicAuth(String username, String password ) {
+        Constraint constraint = new Constraint();
+        constraint.setName(Constraint.__FORM_AUTH);
+        constraint.setRoles(new String[]{"user"});
+        constraint.setAuthenticate(true);
+        HashLoginService loginService = new HashLoginService();
+        loginService.putUser("ich", new Password("ich"), new String[] {"user"});
+
+        FormAuthenticator authenticator = new FormAuthenticator("/login.html", "/404.html", false);
+        ConstraintMapping cm = new ConstraintMapping();
+        cm.setConstraint(constraint);
+        cm.setPathSpec("/*");
+        
+        ConstraintSecurityHandler csh = new ConstraintSecurityHandler();
+        csh.setAuthenticator(authenticator);
+        csh.setRealmName("myrealm");
+        csh.addConstraintMapping(cm);
+        csh.setLoginService(loginService);
+        
+        return csh;
+    	
+}
 	private static WebAppContext setupWebAppContext(ContextHandlerCollection contexts,Server jetty) {
+ 
 
 		WebAppContext webApp = new WebAppContext();
 		webApp.setContextPath("/livemon");
-		//
 		File warPath = new File("../livemonitoring-web");
 		// File warPath = new File("E:/testwar/simple.war");
 		if (warPath.isDirectory()) {
 			// Development mode, read from FS
 			// webApp.setDescriptor(warPath+"/WEB-INF/web.xml");
+			 webApp.setDescriptor(warPath+"src/main/webapp/WEB-INF/web.xml");
 			webApp.setResourceBase(warPath.getPath());
 			webApp.setParentLoaderPriority(true);
 		} else {
@@ -88,7 +117,6 @@ public class Main extends Application {
 		// IniSecurityManagerFactory(Main.class.getClassLoader().getResource("shiro.ini").toString());
 		// SecurityManager securityManager = factory.getInstance();
 		// org.apache.shiro.SecurityUtils.setSecurityManager(securityManager);
-
 		// Create and init the Shiro filter that will lookup and use environment
 		// we just created
 		webapp.addFilter("org.apache.shiro.web.servlet.ShiroFilter", "/*", EnumSet.allOf(DispatcherType.class));
@@ -157,35 +185,7 @@ public class Main extends Application {
 
 	 
 
-	private static final SecurityHandler basicAuth(String username, String password, String realm) {
-
-    	HashLoginService l = new HashLoginService();
-        l.putUser(username, Credential.getCredential(password), new String[] {"user"});
-//        l.setName(realm);
-        
-        Constraint constraint = new Constraint();
-        constraint.setName(Constraint.__FORM_AUTH);
-        
-        constraint.setRoles(new String[]{"user"});
-        constraint.setAuthenticate(true);
-         
-        ConstraintMapping cm = new ConstraintMapping();
-        cm.setConstraint(constraint);
-        cm.setPathSpec("/*");
-        
-        ConstraintSecurityHandler csh = new ConstraintSecurityHandler();
-        csh.setAuthenticator(new BasicAuthenticator());
-        csh.setRealmName("myrealm");
-        csh.addConstraintMapping(cm);
-        csh.setLoginService(l);
-        FormAuthenticator authenticator = new FormAuthenticator( );
-        
-        csh.setInitParameter(FormAuthenticator.__FORM_LOGIN_PAGE, "/login.html");
-        csh.setInitParameter(FormAuthenticator.__FORM_ERROR_PAGE, "/404.html");
-        csh.setAuthenticator(authenticator);
-        return csh;
-    	
-}
+ 
 
 	public static void main(String[] args) throws Exception {
 		final Server jettyWebServer = setupJettyServer(true, 8443);
@@ -194,20 +194,13 @@ public class Main extends Application {
 
 		ContextHandlerCollection contextes = new ContextHandlerCollection();
 		jettyWebServer.setHandler(contextes);
-
-		// Web UI
+ 
+ 
+ 
 
 		final WebAppContext webApp = setupWebAppContext(contextes,jettyWebServer);
-		webApp.setSecurityHandler(basicAuth("ich", "ich", "Private!"));
-		// ServletContextHandler context = new
-		// ServletContextHandler(ServletContextHandler.SESSIONS);
-		// // context.setContextPath("/livemon");
-		// contexts.addHandler(context);
-
-		 ServerContainer wsContainer =
-		 WebSocketServerContainerInitializer.configureContext(webApp.getServletContext(),webApp);
-		
-		 wsContainer.addEndpoint(WsPublisherServer.class);
+		webApp.setSecurityHandler(basicAuth("ich", "ich"));
+		 setupWebsocketJSR(webApp);
 
 		// setupRestApi(webApp);
 
@@ -234,12 +227,18 @@ public class Main extends Application {
 		});
 		jettyWebServer.join();
 	}
+	private static void setupWebsocketJSR(final WebAppContext webApp) throws ServletException, DeploymentException {
+		ServerContainer wsContainer =
+		 WebSocketServerContainerInitializer.configureContext(webApp.getServletContext(),webApp);
+		
+		 wsContainer.addEndpoint(WsPublisherServer.class);
+	}
 
 	 
 	private static SslContextFactory getSslContextFactory() {
 		SslContextFactory sslContextFactory = new SslContextFactory();
 
-		// Set keystore
+		// Set keystore TODO programmatic generation
 		sslContextFactory.setKeyStorePath(Main.class.getClassLoader().getResource("server.jks").getFile());
 		sslContextFactory.setKeyStoreType("JKS");
 		sslContextFactory.setKeyStorePassword("password");

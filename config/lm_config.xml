@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+
+	<setting>
+		<name>server.ip</name>
+		<value>127.0.0.1</value>
+		<desc>Server Ip</desc>
+	</setting>
+
+	<setting>
+		<name>server.port</name>
+		<value>8443</value>
+		<desc>Port for Server</desc>
+	</setting>
+</settings>

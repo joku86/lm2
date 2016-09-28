@@ -1,20 +1,36 @@
 import { Component } from '@angular/core';
 
-
+interface NumberOfConnection {
+  label:string;
+  value:number;
+}
 @Component({
     selector: 'my-app',
 	 moduleId: module.id,
-    templateUrl: 'templates/main.html'
+    templateUrl: 'templates/main.html',
+     styles: ['h1 { color: red; }']
 })
+
 export class AppComponent { 
     
+    selectedQueueNumber: string;
+
+ 
+ numberOfConnection: NumberOfConnection[];
+  constructor() {
+this.numberOfConnection = [];
+      this.numberOfConnection.push({label: 'keine', value: null});
+       for (var i = 1; i < 10; i++) {
+      this.numberOfConnection.push({label: i.toString(), value: i});
+    }
+        
+       
+         
+    }
+ 
+     cars: any[]=[{"plant": "testanlage1", "year": 2012, "plantType": "anltyp", "plantName": "dsad231ff"},{"plant": "UV", "year": 2012, "color": "Orange", "vin": "dsad231ff"}];
     
- 
- 
- 
-     cars: any[]=[{"brand": "mycar", "year": 2012, "color": "Orange", "vin": "dsad231ff"},{"brand": "VW", "year": 2012, "color": "Orange", "vin": "dsad231ff"}];
-    
-    cols: any[]=[{"field":"brand","header":"branddfsdf"},"year","color","vin"];
+    cols: any[]=[{"field":"plant","header":"Anlage"},{"field":"plantName","header":"Anlagebezeichnung"},{"field":"plantType","header":"Anlagentyp"}];
     
 handleChange(e:any) {
   console.log(e);
