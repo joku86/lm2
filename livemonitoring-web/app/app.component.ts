@@ -1,23 +1,30 @@
 import { Component } from '@angular/core';
+import {HttpService} from './http.service';
+import {TreeTableModule,TreeNode,SharedModule} from 'primeng/primeng';
 
 interface NumberOfConnection {
   label:string;
   value:number;
 }
+ 
 @Component({
     selector: 'my-app',
 	 moduleId: module.id,
     templateUrl: 'templates/main.html',
-     styles: ['h1 { color: red; }']
+     styles: ['h1 { color: red; }'],
+     providers:[HttpService]
 })
 
 export class AppComponent { 
     
     selectedQueueNumber: string;
-
+ 
  
  numberOfConnection: NumberOfConnection[];
-  constructor() {
+  constructor(private _httpService:HttpService) {
+
+  
+
 this.numberOfConnection = [];
       this.numberOfConnection.push({label: 'keine', value: null});
        for (var i = 1; i < 10; i++) {
@@ -37,8 +44,13 @@ handleChange(e:any) {
     
 }
 
- 
- 
+ response:any;
+ logout(){
+   this._httpService.getServerConfig().subscribe(
+     response=>this.response=response.setting,
+     error=>console.log(error))
+
+ }
  
 count() {
     

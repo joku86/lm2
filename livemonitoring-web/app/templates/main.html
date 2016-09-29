@@ -1,9 +1,12 @@
 
 <div>
 	
+	
+
+
 	<div class="ui-g">
 	<div class="ui-g-10 "> <h1>Web Livemonitoring !</h1> </div>
-	<div class="ui-g-2" style="text-align: right;padding-top:2em; "><button pButton type="button" label="Abmelden"></button> </div>
+	<div class="ui-g-2" style="text-align: right;padding-top:2em; "><button pButton type="button" (click)="logout()" label="Abmelden"></button> </div>
 	</div>
 	 
 	
@@ -17,15 +20,21 @@
 
 			<p-dataTable [value]="cars"> <p-column
 				*ngFor="let col of cols" [field]="col.field" [header]="col.header"></p-column>
-			</p-dataTable> </p-tabPanel> <p-tabPanel header="Was auch immer hier gezeigt werden soll"
-				leftIcon="fa-print"> Francis Ford Coppola's legendary
-			continuation and sequel to his landmark 1972 film, The_Godfather
-			parallels the young Vito Corleone's rise with his son Michael's
-			spirmary cut of the tyro's business. With Fanucci gone, Vito's
-			communal stature grows. </p-tabPanel> <p-tabPanel header="Was auch immer"
-				leftIcon="fa-bell-o" rightIcon="fa-bookmark-o"> After a
-			break of more than 15 years, director Francis Ford Coppola and writer
-			Mario </p-tabPanel> </p-tabView>
+			</p-dataTable> </p-tabPanel> 
+			
+			<p-tabPanel header="Service und Server Konfigurationen"	leftIcon="fa-gear"> 
+				<p>Resp:{{response|json}}</p>
+<p-dataTable [value]="response">
+    <p-column field="name" header="Name"></p-column>
+    <p-column field="value" header="Wert"></p-column>
+    <p-column field="desc" header="Beschreibung"></p-column>
+</p-dataTable>
+
+
+			 </p-tabPanel>
+				
+				 <p-tabPanel header="Was auch immer"
+				leftIcon="fa-bell-o" rightIcon="fa-bookmark-o">  </p-tabPanel> </p-tabView>
 		</div>
 		<div>
 

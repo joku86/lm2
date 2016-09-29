@@ -28,6 +28,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.json.XML;
+
 @Path("/")
 public class LiveMonitoringRestApi {
 
@@ -52,12 +54,15 @@ public class LiveMonitoringRestApi {
 
 	@GET
 	@Path("serverconfig")
-	@Produces(MediaType.APPLICATION_XML)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getServerConfigs() {
 
 		try {
 			java.nio.file.Path path = Paths.get("../config/lm_server_config.xml").toAbsolutePath();
-			return new String(Files.readAllBytes(path));
+			String string = XML.toJSONObject(new String(Files.readAllBytes(path))).toString();
+			return string;
+			
+//			return new String(Files.readAllBytes(path));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -67,7 +67,7 @@ public class LmConfigs {
 	{
 		try {
 			JAXBContext jc = JAXBContext.newInstance(Settings.class);
-			File file = new File("../config/lm_config.xml");
+			File file = new File("../config/lm_server_config.xml");
 			System.out.println(file.getAbsolutePath());
 			Settings settings = (Settings)jc.createUnmarshaller().unmarshal(file);
 			for (de.tiq.solutions.livemon.app.main.LmConfigs.Settings.Setting setting : settings.getSetting()){

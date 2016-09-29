@@ -124,21 +124,17 @@ public class Main extends Application {
 	}
 
 
-	private static Server setupJettyServer(boolean ssl, int port) {
+	private static Server setupJettyServer(LmConfigs config) {
 
 		final Server server = new Server();
 		ServerConnector connector = null;
-
-		if (ssl) {
+		if (config.getConfigValue("server.secure").equals("true")) {
 			HttpConfiguration httpConfig = new HttpConfiguration();
 			httpConfig.setSecureScheme("https");
-			httpConfig.setSecurePort(port);
+			httpConfig.setSecurePort(config.getConfigValue("server.port")==null?8443:Integer.parseInt(config.getConfigValue("server.port")));
 			httpConfig.setOutputBufferSize(32768);
 			HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
 			SecureRequestCustomizer src = new SecureRequestCustomizer();
-			// Only with Jetty 9.3.x
-			// src.setStsMaxAge(2000);
-			// src.setStsIncludeSubDomains(true);
 			httpsConfig.addCustomizer(src);
 			connector = new ServerConnector(server,
 					new SslConnectionFactory(getSslContextFactory(), HttpVersion.HTTP_1_1.asString()),
@@ -150,8 +146,8 @@ public class Main extends Application {
 		int timeout = 1000 * 30;
 		connector.setIdleTimeout(timeout);
 		connector.setSoLingerTime(-1);
-		connector.setHost("127.0.0.2");
-		connector.setPort(port);
+		connector.setHost(config.getConfigValue("server.ip")==null?"127.0.0.1":config.getConfigValue("server.ip"));
+		connector.setPort(config.getConfigValue("server.port")==null?8080:Integer.parseInt(config.getConfigValue("server.port")));
 
 		server.addConnector(connector);
 
@@ -176,9 +172,10 @@ public class Main extends Application {
  
 
 	public static void main(String[] args) throws Exception {
-		final Server jettyWebServer = setupJettyServer(true, 8443);
-
 		
+		LmConfigs l = LmConfigs.getInsance();
+		
+		final Server jettyWebServer = setupJettyServer(l);		
 
 		ContextHandlerCollection contextes = new ContextHandlerCollection();
 		jettyWebServer.setHandler(contextes);

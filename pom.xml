@@ -25,6 +25,14 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- https://mvnrepository.com/artifact/org.json/json -->
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>20160810</version>
+			</dependency>
+
+
 			<dependency>
 				<groupId>javax.websocket</groupId>
 				<artifactId>javax.websocket-api</artifactId>
@@ -107,6 +115,6 @@
 		<module>livemonitoring-model</module>
 		<module>livemonitoring-web</module>
 		<module>livemonitoring-server</module>
-		
+
 	</modules>
 </project>
