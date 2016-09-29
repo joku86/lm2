@@ -17,29 +17,60 @@
 
 package de.tiq.solutions.rest;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/")
 public class LiveMonitoringRestApi {
 
-  public LiveMonitoringRestApi() {
-  }
+	public LiveMonitoringRestApi() {
+	}
 
-  /**
-   * Get the root endpoint Return always 200.
-   *
-   * @return 200 response
-   */
-  @GET
-  public Response getRoot() {
-    return Response.ok().build();
-  }
+	/**
+	 * Get the root endpoint Return always 200.
+	 *
+	 * @return 200 response
+	 */
+	@GET
+	public Response getRoot() {
+		return Response.ok().build();
+	}
 
-  @GET
-  @Path("version")
-  public String getVersion() {
-    return "was auch immer";
-  }
+	@GET
+	@Path("version")
+	public String getVersion() {
+		return "was auch immer";
+	}
+
+	@GET
+	@Path("serverconfig")
+	@Produces(MediaType.APPLICATION_XML)
+	public String getServerConfigs() {
+
+		try {
+			java.nio.file.Path path = Paths.get("../config/lm_server_config.xml").toAbsolutePath();
+			return new String(Files.readAllBytes(path));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return " ";
+	}
+
+	@GET
+	@Path("logout")
+	public String logout(@Context HttpServletRequest req) {
+		req.getSession(true).invalidate();
+		return "SUCCESS";
+	}
+
 }

@@ -20,12 +20,12 @@ package de.tiq.solutions.rest;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class NotebookResponse {
+public class RestResponse {
   private String msg;
 
-  public NotebookResponse() {}
+  public RestResponse() {}
 
-  public NotebookResponse(String msg) {
+  public RestResponse(String msg) {
     this.msg = msg;
   }
 }

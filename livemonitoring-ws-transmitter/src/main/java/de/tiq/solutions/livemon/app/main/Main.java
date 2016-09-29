@@ -40,7 +40,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
-import de.tiq.solutions.livemon.websocket.WsPublisherServer;
+import de.tiq.solutions.livemon.websocket.WsConsumerServer;
 import de.tiq.solutions.rest.LiveMonitoringRestApi;
 
 public class Main extends Application {
@@ -50,10 +50,10 @@ public class Main extends Application {
 	private static final SecurityHandler basicAuth(String username, String password ) {
         Constraint constraint = new Constraint();
         constraint.setName(Constraint.__FORM_AUTH);
-        constraint.setRoles(new String[]{"user"});
+        constraint.setRoles(new String[]{"user","admin"});
         constraint.setAuthenticate(true);
-        HashLoginService loginService = new HashLoginService();
-        loginService.putUser("ich", new Password("ich"), new String[] {"user"});
+        HashLoginService loginService = new HashLoginService("MyRealm","E:/dev/workspaceMars/livemonitoring-base/config/lm_users.properties");
+//        loginService.putUser("ich", new Password("ich"), new String[] {"user"});
 
         FormAuthenticator authenticator = new FormAuthenticator("/login.html", "/404.html", false);
         ConstraintMapping cm = new ConstraintMapping();
@@ -169,18 +169,6 @@ public class Main extends Application {
 
 		webapp.setSessionHandler(new SessionHandler());
 		webapp.addServlet(cxfServletHolder, "/api/*");
-		//
-		// try{
-		//
-		//
-	
-		// webapp.setHandler(cxfContext);
-		// }catch(Exception e){
-		//
-		// }
-
-		// Add your websockets to the container
-
 	}
 
 	 
@@ -202,7 +190,7 @@ public class Main extends Application {
 		webApp.setSecurityHandler(basicAuth("ich", "ich"));
 		 setupWebsocketJSR(webApp);
 
-		// setupRestApi(webApp);
+ 	  setupRestApi(webApp);
 
 		//setupWs(webApp);
 		// setuShiro(webApp);
@@ -231,7 +219,7 @@ public class Main extends Application {
 		ServerContainer wsContainer =
 		 WebSocketServerContainerInitializer.configureContext(webApp.getServletContext(),webApp);
 		
-		 wsContainer.addEndpoint(WsPublisherServer.class);
+		 wsContainer.addEndpoint(WsConsumerServer.class);
 	}
 
 	 

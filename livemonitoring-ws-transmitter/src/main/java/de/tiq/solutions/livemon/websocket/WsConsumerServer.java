@@ -8,8 +8,8 @@ import javax.websocket.server.ServerEndpoint;
 
 import de.tiq.solutions.livemon.authentification.AuthInstansObserver;
 
-@ServerEndpoint(value = "/echo",configurator = AuthInstansObserver.class)
-public class WsPublisherServer {
+@ServerEndpoint(value = "/ws/server",configurator = AuthInstansObserver.class)
+public class WsConsumerServer {
 	@OnOpen
 	public void onMessage(Session session, EndpointConfig config) {
 		System.out.println("verbingun aufgebaut");
@@ -19,20 +19,4 @@ public class WsPublisherServer {
 	public void onMessage(Session session, String message) {
 		session.getAsyncRemote().sendText("von dem server");
 	}
-	// public static void main( String[] args ) throws Exception
-	// {
-	// Server server = new Server(8080);
-	//
-	// ServletContextHandler context = new ServletContextHandler(
-	// ServletContextHandler.SESSIONS);
-	// context.setContextPath("/");
-	// server.setHandler(context);
-	//
-	// // Add the echo socket servlet to the /echo path map
-	//
-	//
-	// server.start();
-	// context.dumpStdErr();
-	// server.join();
-	// }
 }

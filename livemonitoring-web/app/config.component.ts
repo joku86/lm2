@@ -1,14 +1,6 @@
 import { Component } from '@angular/core';
 
-interface NumberOfConnection {
-    label: string;
-    value: number;
-}
-interface InsertedConnectionDetails {
-    queueAdress: string;
-    username: string;
-    password: string;
-}
+
 
 @Component({
     selector: 'configs',
@@ -62,7 +54,7 @@ export class ConfigComponent {
 
 
 
-        let ws: WebSocket = new WebSocket("wss://localhost:8443/livemon/ws/receiver");
+        let ws: WebSocket = new WebSocket("wss://127.0.0.2:8443/livemon/ws/server");
 
         ws.onopen = function(event: any) {
             console.log("Socket has been opened!");
@@ -76,4 +68,13 @@ export class ConfigComponent {
     }
 
 
+}
+interface NumberOfConnection {
+    label: string;
+    value: number;
+}
+interface InsertedConnectionDetails {
+    queueAdress: string;
+    username: string;
+    password: string;
 }

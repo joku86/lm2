@@ -8,8 +8,7 @@ import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
 import javax.websocket.server.ServerEndpointConfig.Configurator;
 
-import de.tiq.solutions.livemon.websocket.WsPublisherServer;
-import de.tiq.solutions.livemon.websocket.WsServerReceiverEndpoint;
+import de.tiq.solutions.livemon.websocket.WsConsumerServer;
 
 public class AuthInstansObserver extends Configurator {
 
@@ -26,7 +25,7 @@ public class AuthInstansObserver extends Configurator {
 	// WorkingServlet.getLoggedUser
 	public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
 		try {
-			WsPublisherServer new_name = (WsPublisherServer) endpointClass.newInstance();
+			WsConsumerServer new_name = (WsConsumerServer) endpointClass.newInstance();
 			return (T) new_name;
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
