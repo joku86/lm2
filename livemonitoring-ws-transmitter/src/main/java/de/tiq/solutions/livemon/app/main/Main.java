@@ -1,12 +1,15 @@
 package de.tiq.solutions.livemon.app.main;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.websocket.DeploymentException;
 import javax.ws.rs.core.Application;
 
@@ -45,41 +48,42 @@ import de.tiq.solutions.rest.LiveMonitoringRestApi;
 
 public class Main extends Application {
 
- 
-	
-	private static final SecurityHandler basicAuth(String username, String password ) {
-        Constraint constraint = new Constraint();
-        constraint.setName(Constraint.__FORM_AUTH);
-        constraint.setRoles(new String[]{"user","admin"});
-        constraint.setAuthenticate(true);
-        HashLoginService loginService = new HashLoginService("MyRealm","E:/dev/workspaceMars/livemonitoring-base/config/lm_users.properties");
-//        loginService.putUser("ich", new Password("ich"), new String[] {"user"});
+	private static final SecurityHandler basicAuth() {
+		Constraint constraint = new Constraint();
+		constraint.setName(Constraint.__FORM_AUTH);
+		constraint.setRoles(new String[] { "user", "admin" });
+		constraint.setAuthenticate(true);
+		HashLoginService loginService = new HashLoginService("MyRealm",
+				"E:/dev/workspaceMars/livemonitoring-base/config/lm_users.properties");
+		// loginService.putUser("ich", new Password("ich"), new String[]
+		// {"user"});
 
-        FormAuthenticator authenticator = new FormAuthenticator("/login.html", "/404.html", false);
-        ConstraintMapping cm = new ConstraintMapping();
-        cm.setConstraint(constraint);
-        cm.setPathSpec("/*");
-        
-        ConstraintSecurityHandler csh = new ConstraintSecurityHandler();
-        csh.setAuthenticator(authenticator);
-        csh.setRealmName("myrealm");
-        csh.addConstraintMapping(cm);
-        csh.setLoginService(loginService);
-        
-        return csh;
-    	
-}
-	private static WebAppContext setupWebAppContext(ContextHandlerCollection contexts,Server jetty) {
- 
+		FormAuthenticator authenticator = new FormAuthenticator("/check", "/404.html", false);
+		ConstraintMapping cm = new ConstraintMapping();
+		cm.setConstraint(constraint);
+		cm.setPathSpec("/*");
+
+		ConstraintSecurityHandler csh = new ConstraintSecurityHandler();
+		csh.setAuthenticator(authenticator);
+		csh.setRealmName("myrealm");
+		csh.addConstraintMapping(cm);
+		csh.setLoginService(loginService);
+
+		return csh;
+
+	}
+
+	private static WebAppContext setupWebAppContext(ContextHandlerCollection contexts, Server jetty, LmConfigs config) {
 
 		WebAppContext webApp = new WebAppContext();
-		webApp.setContextPath("/livemon");
+		webApp.setContextPath(
+				config.getConfigValue("context.path") == null ? "/" : "/" + config.getConfigValue("context.path"));
 		File warPath = new File("../livemonitoring-web");
 		// File warPath = new File("E:/testwar/simple.war");
 		if (warPath.isDirectory()) {
 			// Development mode, read from FS
 			// webApp.setDescriptor(warPath+"/WEB-INF/web.xml");
-			 webApp.setDescriptor(warPath+"src/main/webapp/WEB-INF/web.xml");
+			webApp.setDescriptor(warPath + "src/main/webapp/WEB-INF/web.xml");
 			webApp.setResourceBase(warPath.getPath());
 			webApp.setParentLoaderPriority(true);
 		} else {
@@ -89,6 +93,15 @@ public class Main extends Application {
 		}
 		// Explicit bind to root
 		webApp.addServlet(new ServletHolder(new DefaultServlet()), "/*");
+		webApp.addServlet(new ServletHolder(new LoginServlet()), "/check");
+		webApp.addServlet(new ServletHolder(new DefaultServlet	(){
+			@Override
+			protected void doGet(HttpServletRequest request, HttpServletResponse response)
+					throws ServletException, IOException {
+				response.getWriter()
+				.append("<html><body>back</body></html>");
+			}
+		}), "/404.html");
 		contexts.addHandler(webApp);
 		ErrorPageErrorHandler errorHandler = new ErrorPageErrorHandler();
 		errorHandler.addErrorPage(404, "/404.html");
@@ -98,7 +111,8 @@ public class Main extends Application {
 		return webApp;
 
 	}
-	public static void discoverAnnotations(Server jetty){
+
+	public static void discoverAnnotations(Server jetty) {
 		org.eclipse.jetty.webapp.Configuration.ClassList classlist = org.eclipse.jetty.webapp.Configuration.ClassList
 				.setServerDefault(jetty);
 		classlist.addAfter("org.eclipse.jetty.webapp.FragmentConfiguration",
@@ -110,6 +124,7 @@ public class Main extends Application {
 	private static void setupCustomFilter(WebAppContext webapp) {
 		webapp.addFilter(new FilterHolder(new CorsFilter()), "/*", EnumSet.allOf(DispatcherType.class));
 	}
+
 	private static void setuShiro(WebAppContext webapp) {
 		webapp.setInitParameter("shiroConfigLocations",
 				Main.class.getClassLoader().getResource("shiro.ini").toString());
@@ -123,7 +138,6 @@ public class Main extends Application {
 		webapp.addEventListener(new EnvironmentLoaderListener());
 	}
 
-
 	private static Server setupJettyServer(LmConfigs config) {
 
 		final Server server = new Server();
@@ -131,7 +145,8 @@ public class Main extends Application {
 		if (config.getConfigValue("server.secure").equals("true")) {
 			HttpConfiguration httpConfig = new HttpConfiguration();
 			httpConfig.setSecureScheme("https");
-			httpConfig.setSecurePort(config.getConfigValue("server.port")==null?8443:Integer.parseInt(config.getConfigValue("server.port")));
+			httpConfig.setSecurePort(config.getConfigValue("server.port") == null ? 8443
+					: Integer.parseInt(config.getConfigValue("server.port")));
 			httpConfig.setOutputBufferSize(32768);
 			HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
 			SecureRequestCustomizer src = new SecureRequestCustomizer();
@@ -146,8 +161,10 @@ public class Main extends Application {
 		int timeout = 1000 * 30;
 		connector.setIdleTimeout(timeout);
 		connector.setSoLingerTime(-1);
-		connector.setHost(config.getConfigValue("server.ip")==null?"127.0.0.1":config.getConfigValue("server.ip"));
-		connector.setPort(config.getConfigValue("server.port")==null?8080:Integer.parseInt(config.getConfigValue("server.port")));
+		connector
+				.setHost(config.getConfigValue("server.ip") == null ? "127.0.0.1" : config.getConfigValue("server.ip"));
+		connector.setPort(config.getConfigValue("server.port") == null ? 8080
+				: Integer.parseInt(config.getConfigValue("server.port")));
 
 		server.addConnector(connector);
 
@@ -167,31 +184,24 @@ public class Main extends Application {
 		webapp.addServlet(cxfServletHolder, "/api/*");
 	}
 
-	 
-
- 
-
 	public static void main(String[] args) throws Exception {
-		
-		LmConfigs l = LmConfigs.getInsance();
-		
-		final Server jettyWebServer = setupJettyServer(l);		
+
+		LmConfigs serverConfigs = LmConfigs.getInsance();
+
+		final Server jettyWebServer = setupJettyServer(serverConfigs);
 
 		ContextHandlerCollection contextes = new ContextHandlerCollection();
 		jettyWebServer.setHandler(contextes);
- 
- 
- 
 
-		final WebAppContext webApp = setupWebAppContext(contextes,jettyWebServer);
-		webApp.setSecurityHandler(basicAuth("ich", "ich"));
-		 setupWebsocketJSR(webApp);
+		final WebAppContext webApp = setupWebAppContext(contextes, jettyWebServer,serverConfigs);
+		webApp.setSecurityHandler(basicAuth());
+		setupWebsocketJSR(webApp);
 
- 	  setupRestApi(webApp);
+		setupRestApi(webApp);
 
-		//setupWs(webApp);
+		// setupWs(webApp);
 		// setuShiro(webApp);
- 
+
 		try {
 			jettyWebServer.start();
 		} catch (Exception e) {
@@ -212,14 +222,14 @@ public class Main extends Application {
 		});
 		jettyWebServer.join();
 	}
+
 	private static void setupWebsocketJSR(final WebAppContext webApp) throws ServletException, DeploymentException {
-		ServerContainer wsContainer =
-		 WebSocketServerContainerInitializer.configureContext(webApp.getServletContext(),webApp);
-		
-		 wsContainer.addEndpoint(WsConsumerServer.class);
+		ServerContainer wsContainer = WebSocketServerContainerInitializer.configureContext(webApp.getServletContext(),
+				webApp);
+
+		wsContainer.addEndpoint(WsConsumerServer.class);
 	}
 
-	 
 	private static SslContextFactory getSslContextFactory() {
 		SslContextFactory sslContextFactory = new SslContextFactory();
 

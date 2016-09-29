@@ -8,13 +8,18 @@
 	
 	<setting>
 		<name>server.secure</name>
-		<value>false</value>
-		<desc>If True Https or Http</desc>
+		<value>true</value>
+		<desc>If True Https else Http</desc>
 	</setting>
 
 	<setting>
 		<name>server.port</name>
 		<value>8443</value>
 		<desc>Port for Server</desc>
+	</setting>
+	<setting>
+		<name>context.path</name>
+		<value>test</value>
+		<desc>Context path for The Application,WS,REST</desc>
 	</setting>
 </settings>
