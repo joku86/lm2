@@ -9,7 +9,7 @@ export class HttpService{
 
     }
     getServerConfig():Observable<any>{
-        return this._http.get('https://127.0.0.2:8443/livemon/api/serverconfig').map(res=>res.json().settings);
+        return this._http.get('http://127.0.0.1:8080/livemon/api/serverconfig').map(res=>res.json().settings);
 
     }
   

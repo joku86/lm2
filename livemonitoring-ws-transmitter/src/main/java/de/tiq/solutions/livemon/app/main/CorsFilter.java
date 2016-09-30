@@ -75,9 +75,6 @@ public class CorsFilter implements Filter {
     response.addHeader("Access-Control-Allow-Credentials", "true");
     response.addHeader("Access-Control-Allow-Headers", "authorization,Content-Type");
     response.addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, HEAD, DELETE");
-    DateFormat fullDateFormatEN =
-        DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, new Locale("EN", "en"));
-    response.addHeader("Date", fullDateFormatEN.format(new Date()));
   }
 
   @Override

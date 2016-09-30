@@ -1,9 +1,5 @@
 
 <div>
-	
-	
-
-
 	<div class="ui-g">
 	<div class="ui-g-10 "> <h1>Web Livemonitoring !</h1> </div>
 	<div class="ui-g-2" style="text-align: right;padding-top:2em; "><button pButton type="button" (click)="logout()" label="Abmelden"></button> </div>
@@ -23,8 +19,13 @@
 			</p-dataTable> </p-tabPanel> 
 			
 			<p-tabPanel header="Service und Server Konfigurationen"	leftIcon="fa-gear"> 
-				<p>Resp:{{response|json}}</p>
-<p-dataTable [value]="response">
+
+<div class="ui-widget-header ui-helper-clearfix" style="padding:4px 10px;border-bottom: 0 none">
+    <i class="fa fa-search" style="float:left;margin:4px 4px 0 0"></i>
+    <input #gb type="text" pInputText size="50" style="float:left" placeholder="Global Filter">
+</div>	
+
+<p-dataTable [value]="response" [rows]="20" [paginator]="true" [globalFilter]="gb">
     <p-column field="name" header="Name"></p-column>
     <p-column field="value" header="Wert"></p-column>
     <p-column field="desc" header="Beschreibung"></p-column>

@@ -53,19 +53,18 @@ public class Main extends Application {
 		constraint.setName(Constraint.__FORM_AUTH);
 		constraint.setRoles(new String[] { "user", "admin" });
 		constraint.setAuthenticate(true);
-		HashLoginService loginService = new HashLoginService("MyRealm",
-				"E:/dev/workspaceMars/livemonitoring-base/config/lm_users.properties");
+		HashLoginService loginService = new HashLoginService("MyRealm","../config/lm_users.properties");
 		// loginService.putUser("ich", new Password("ich"), new String[]
 		// {"user"});
 
-		FormAuthenticator authenticator = new FormAuthenticator("/check", "/404.html", false);
+		FormAuthenticator authenticator = new FormAuthenticator("/login", "/404", false);
 		ConstraintMapping cm = new ConstraintMapping();
 		cm.setConstraint(constraint);
 		cm.setPathSpec("/*");
 
 		ConstraintSecurityHandler csh = new ConstraintSecurityHandler();
 		csh.setAuthenticator(authenticator);
-		csh.setRealmName("myrealm");
+		csh.setRealmName("realm");
 		csh.addConstraintMapping(cm);
 		csh.setLoginService(loginService);
 
@@ -78,12 +77,11 @@ public class Main extends Application {
 		WebAppContext webApp = new WebAppContext();
 		webApp.setContextPath(
 				config.getConfigValue("context.path") == null ? "/" : "/" + config.getConfigValue("context.path"));
-		File warPath = new File("../livemonitoring-web");
+		File warPath = new File(config.getConfigValue("server.web.resources"));
 		// File warPath = new File("E:/testwar/simple.war");
 		if (warPath.isDirectory()) {
 			// Development mode, read from FS
 			// webApp.setDescriptor(warPath+"/WEB-INF/web.xml");
-			webApp.setDescriptor(warPath + "src/main/webapp/WEB-INF/web.xml");
 			webApp.setResourceBase(warPath.getPath());
 			webApp.setParentLoaderPriority(true);
 		} else {
@@ -93,18 +91,12 @@ public class Main extends Application {
 		}
 		// Explicit bind to root
 		webApp.addServlet(new ServletHolder(new DefaultServlet()), "/*");
-		webApp.addServlet(new ServletHolder(new LoginServlet()), "/check");
-		webApp.addServlet(new ServletHolder(new DefaultServlet	(){
-			@Override
-			protected void doGet(HttpServletRequest request, HttpServletResponse response)
-					throws ServletException, IOException {
-				response.getWriter()
-				.append("<html><body>back</body></html>");
-			}
-		}), "/404.html");
+		webApp.addServlet(new ServletHolder(new LogInLogOutServlets.LoginServet()), config.getConfigValue("server.login"));
+		webApp.addServlet(new ServletHolder(new LogInLogOutServlets.LogoutServet()),config.getConfigValue("server.404"));
 		contexts.addHandler(webApp);
+//		setupCustomFilter(webApp);
 		ErrorPageErrorHandler errorHandler = new ErrorPageErrorHandler();
-		errorHandler.addErrorPage(404, "/404.html");
+		errorHandler.addErrorPage(404, config.getConfigValue("server.404"));
 		webApp.setErrorHandler(errorHandler);
 		contexts.addHandler(errorHandler);
 
@@ -122,7 +114,7 @@ public class Main extends Application {
 	}
 
 	private static void setupCustomFilter(WebAppContext webapp) {
-		webapp.addFilter(new FilterHolder(new CorsFilter()), "/*", EnumSet.allOf(DispatcherType.class));
+		webapp.addFilter(new FilterHolder(new CorsFilter()), "/api", EnumSet.allOf(DispatcherType.class));
 	}
 
 	private static void setuShiro(WebAppContext webapp) {
@@ -179,9 +171,9 @@ public class Main extends Application {
 		cxfServletHolder.setForcedPath("rest");
 		String maxTextMessageSize = "9000";
 		cxfServletHolder.setInitParameter("maxTextMessageSize", maxTextMessageSize);
-
 		webapp.setSessionHandler(new SessionHandler());
 		webapp.addServlet(cxfServletHolder, "/api/*");
+ 
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -198,7 +190,7 @@ public class Main extends Application {
 		setupWebsocketJSR(webApp);
 
 		setupRestApi(webApp);
-
+		
 		// setupWs(webApp);
 		// setuShiro(webApp);
 

@@ -8,18 +8,33 @@
 	
 	<setting>
 		<name>server.secure</name>
-		<value>true</value>
+		<value>false</value>
 		<desc>If True Https else Http</desc>
 	</setting>
 
 	<setting>
 		<name>server.port</name>
-		<value>8443</value>
+		<value>8080</value>
 		<desc>Port for Server</desc>
 	</setting>
 	<setting>
+		<name>server.login</name>
+		<value>/login</value>
+		<desc>servlet mapping for login</desc>
+	</setting>
+	<setting>
+		<name>server.web.resources</name>
+		<value>../livemonitoring-web</value>
+		<desc>relative path to UI</desc>
+	</setting>
+	<setting>
+		<name>server.404</name>
+		<value>/404</value>
+		<desc>servlet mapping for error or not found</desc>
+	</setting>
+	<setting>
 		<name>context.path</name>
-		<value>test</value>
+		<value>livemon</value>
 		<desc>Context path for The Application,WS,REST</desc>
 	</setting>
 </settings>

@@ -55,8 +55,7 @@ public class LiveMonitoringRestApi {
 	@GET
 	@Path("serverconfig")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getServerConfigs() {
-
+	public String getServerConfigs(@Context HttpServletRequest req) {
 		try {
 			java.nio.file.Path path = Paths.get("../config/lm_server_config.xml").toAbsolutePath();
 			String string = XML.toJSONObject(new String(Files.readAllBytes(path))).toString();
