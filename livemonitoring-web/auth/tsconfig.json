@@ -7,7 +7,6 @@
 		"experimentalDecorators": true,
 		"removeComments": false,
 		"suppressImplicitAnyIndexErrors": true,
-/*  		"outDir":"./dist", //templases will be ignored*/
 		"sourceMap": true,
 		"noImplicitAny": true
 	} 
