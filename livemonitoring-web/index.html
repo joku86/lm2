@@ -1,60 +1,23 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>
-      TIQ Solutions-Livemonitoring
-    </title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-     
-	<link rel="stylesheet" type="text/css" href="node_modules/primeng/resources/themes/omega/theme.css" />
-    <link rel="stylesheet" type="text/css" href="app/resources/icons/css/font-awesome.min.css" />
-	<link rel="stylesheet" type="text/css" href="node_modules/primeng/resources/primeng.min.css" />
-<!-- 	<script src="node_modules/bootstrap/dist/js/bootstrap.js"></script> -->
-<!-- 	<script src="node_modules/typescript-collections/dist/lib/umd.min.js"></script> -->
-	
-	
-    <!-- Polyfill(s) for older browsers -->
-    <script src="node_modules/core-js/client/shim.min.js"></script>
-
-    <script src="node_modules/zone.js/dist/zone.js"></script>
-    <script src="node_modules/reflect-metadata/Reflect.js"></script>
-    <script src="node_modules/systemjs/dist/system.src.js"></script>
-
-    <script src="systemjs.config.js"></script>
-    <script>
-      System.import('app').catch(function(err){ console.error(err); });
-    </script>
-  </head>
-
-  <body>
-  
-  
-<p id="demo"></p>
-
-<script>
-var xhttp;
-xhttp = new XMLHttpRequest();
-xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-        myFunction(this);
-    }
-};
-xhttp.open("GET", "test.xml", true);
-xhttp.send();
-
-function myFunction(xml) {
-    var x, i, txt, xmlDoc;
-    xmlDoc = xml.responseXML;
-    txt = "";
-    x = xmlDoc.getElementsByTagName("title");
-    for (i = 0; i < x.length; i++) {
-        txt += x[i].childNodes[0].nodeValue + "<br>";
-    }
-    document.getElementById("demo").innerHTML = txt;
-}
-</script>
-  
-    <my-app>Loading...</my-app>
-  </body>
-</html>
+<HTML>
+<head>
+<link rel="stylesheet" type="text/css" href="test.css" />
+</head>
+<H1>FORM Authentication</H1>
+<form method="POST" action="auth/j_security_check">
+<table border="0" cellspacing="2" cellpadding="1">
+<tr>
+  <td>Username:</td>
+  <td><input size="12" value="" name="j_username" maxlength="25" type="text"></td>
+</tr>
+<tr>
+  <td>Password:</td>
+  <td><input size="12" value="" name="j_password" maxlength="25" type="password"></td>
+</tr>
+<tr>
+  <td colspan="2" align="center">
+    <input name="submit" type="submit" value="Login">
+  </td>
+</tr>
+</table>
+</form>
+</HTML>

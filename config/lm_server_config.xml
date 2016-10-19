@@ -8,13 +8,13 @@
 	
 	<setting>
 		<name>server.secure</name>
-		<value>false</value>
+		<value>true</value>
 		<desc>If True Https else Http</desc>
 	</setting>
 
 	<setting>
 		<name>server.port</name>
-		<value>8080</value>
+		<value>8443</value>
 		<desc>Port for Server</desc>
 	</setting>
 	<setting>

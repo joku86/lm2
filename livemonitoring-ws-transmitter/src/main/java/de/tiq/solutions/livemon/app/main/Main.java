@@ -1,15 +1,12 @@
 package de.tiq.solutions.livemon.app.main;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.websocket.DeploymentException;
 import javax.ws.rs.core.Application;
 
@@ -17,9 +14,11 @@ import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
 //github.com/joku86/lm2.git
 import org.apache.shiro.web.env.EnvironmentLoaderListener;
 import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -53,18 +52,18 @@ public class Main extends Application {
 		constraint.setName(Constraint.__FORM_AUTH);
 		constraint.setRoles(new String[] { "user", "admin" });
 		constraint.setAuthenticate(true);
-		HashLoginService loginService = new HashLoginService("MyRealm","../config/lm_users.properties");
+
+		HashLoginService loginService = new HashLoginService("MyRealm", "../config/lm_users.properties");
 		// loginService.putUser("ich", new Password("ich"), new String[]
 		// {"user"});
 
-		FormAuthenticator authenticator = new FormAuthenticator("/login", "/404", false);
+		FormAuthenticator authenticator = new FormAuthenticator("/index.html", "/404", false);
 		ConstraintMapping cm = new ConstraintMapping();
 		cm.setConstraint(constraint);
-		cm.setPathSpec("/*");
+		cm.setPathSpec("/auth/*");
 
 		ConstraintSecurityHandler csh = new ConstraintSecurityHandler();
 		csh.setAuthenticator(authenticator);
-		csh.setRealmName("realm");
 		csh.addConstraintMapping(cm);
 		csh.setLoginService(loginService);
 
@@ -90,11 +89,15 @@ public class Main extends Application {
 			webApp.setTempDirectory(new File("E:/testwar/deploy"));
 		}
 		// Explicit bind to root
-		webApp.addServlet(new ServletHolder(new DefaultServlet()), "/*");
-		webApp.addServlet(new ServletHolder(new LogInLogOutServlets.LoginServet()), config.getConfigValue("server.login"));
-		webApp.addServlet(new ServletHolder(new LogInLogOutServlets.LogoutServet()),config.getConfigValue("server.404"));
+		DefaultServlet servlet = new DefaultServlet();
+		
+		 webApp.addServlet(new ServletHolder(servlet),"/*");
+//		 config.getConfigValue("server.login"));
+//			webApp.addServlet(new ServletHolder(new LogInLogOutServlets.LoginServet()),"/index.html");
+		webApp.addServlet(new ServletHolder(new LogInLogOutServlets.LogoutServet()),
+				config.getConfigValue("server.404"));
 		contexts.addHandler(webApp);
-//		setupCustomFilter(webApp);
+		// setupCustomFilter(webApp);
 		ErrorPageErrorHandler errorHandler = new ErrorPageErrorHandler();
 		errorHandler.addErrorPage(404, config.getConfigValue("server.404"));
 		webApp.setErrorHandler(errorHandler);
@@ -114,7 +117,7 @@ public class Main extends Application {
 	}
 
 	private static void setupCustomFilter(WebAppContext webapp) {
-		webapp.addFilter(new FilterHolder(new CorsFilter()), "/api", EnumSet.allOf(DispatcherType.class));
+		webapp.addFilter(new FilterHolder(new CorsFilter()), "/auth/api", EnumSet.allOf(DispatcherType.class));
 	}
 
 	private static void setuShiro(WebAppContext webapp) {
@@ -172,12 +175,12 @@ public class Main extends Application {
 		String maxTextMessageSize = "9000";
 		cxfServletHolder.setInitParameter("maxTextMessageSize", maxTextMessageSize);
 		webapp.setSessionHandler(new SessionHandler());
-		webapp.addServlet(cxfServletHolder, "/api/*");
- 
+		webapp.addServlet(cxfServletHolder, "/auth/api/*");
+
 	}
 
 	public static void main(String[] args) throws Exception {
-
+//
 		LmConfigs serverConfigs = LmConfigs.getInsance();
 
 		final Server jettyWebServer = setupJettyServer(serverConfigs);
@@ -185,12 +188,14 @@ public class Main extends Application {
 		ContextHandlerCollection contextes = new ContextHandlerCollection();
 		jettyWebServer.setHandler(contextes);
 
-		final WebAppContext webApp = setupWebAppContext(contextes, jettyWebServer,serverConfigs);
-		webApp.setSecurityHandler(basicAuth());
+		final WebAppContext webApp = setupWebAppContext(contextes, jettyWebServer, serverConfigs);
+		SecurityHandler basicAuth = basicAuth();
+		
+		contextes.addHandler(basicAuth);
+		webApp.setSecurityHandler(basicAuth);
 		setupWebsocketJSR(webApp);
 
 		setupRestApi(webApp);
-		
 		// setupWs(webApp);
 		// setuShiro(webApp);
 
@@ -209,11 +214,26 @@ public class Main extends Application {
 				} catch (Exception e) {
 					// LOG.error("Error while stopping servlet container", e);
 				}
-				// LOG.info("Bye");
 			}
 		});
 		jettyWebServer.join();
+		
 	}
+	private static ConstraintMapping[] getConstraintMappings() {
+	    // CONSTRAINT
+	    Constraint constraint = new Constraint();
+	    constraint.setName(Constraint.__FORM_AUTH);
+	    constraint.setRoles(new String[]{"user", "admin"});
+	    constraint.setAuthenticate( true );
+	    // MAPPINGS
+	    ConstraintMapping mapping = new ConstraintMapping();
+	    mapping.setPathSpec( "/" );
+	    mapping.setConstraint( constraint );
+
+	    return new ConstraintMapping[] {mapping};
+	}
+
+
 
 	private static void setupWebsocketJSR(final WebAppContext webApp) throws ServletException, DeploymentException {
 		ServerContainer wsContainer = WebSocketServerContainerInitializer.configureContext(webApp.getServletContext(),
