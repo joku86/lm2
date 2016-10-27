@@ -54,10 +54,10 @@ public class Main extends Application {
 		constraint.setAuthenticate(true);
 
 		HashLoginService loginService = new HashLoginService("MyRealm", "../config/lm_users.properties");
-		// loginService.putUser("ich", new Password("ich"), new String[]
-		// {"user"});
+//		 loginService.putUser("ich", new Password("ich"), new String[]
+//		 {"user"});
 
-		FormAuthenticator authenticator = new FormAuthenticator("/index.html", "/404", false);
+		FormAuthenticator authenticator = new FormAuthenticator("/login.html", "/404", false);
 		ConstraintMapping cm = new ConstraintMapping();
 		cm.setConstraint(constraint);
 		cm.setPathSpec("/auth/*");
