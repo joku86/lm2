@@ -113,8 +113,8 @@
 		<module>service-drools-impl</module>
 		<module>service-java-impl</module>
 		<module>livemonitoring-model</module>
-		<module>livemonitoring-web</module>
-		<module>livemonitoring-server</module>
+		
+		
 
 	</modules>
 </project>

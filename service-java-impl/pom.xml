@@ -8,11 +8,6 @@
   <artifactId>service-java-impl</artifactId>
   <dependencies>
   	<dependency>
-  		<groupId>de.tiq.solutions</groupId>
-  		<artifactId>service-provider</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
   		<groupId>de.tiq.solutions.livemon</groupId>
   		<artifactId>livemonitoring-model</artifactId>
   		<version>0.0.1-SNAPSHOT</version>

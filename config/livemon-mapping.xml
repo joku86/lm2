@@ -1,0 +1,38 @@
+<Mapping-Table>
+
+<Relation-Identifier>PAC</Relation-Identier>
+	<violations>
+		<alert>
+			<min></min>
+			<max></max>
+		</alert>
+		<warn>
+			<min></min>
+			<max></max>		
+		</warn>
+	</violations>
+	<mapping>
+		<completion>
+			<Name></Name>
+			<measure-unit></measure-unit>
+			<description><description>
+		</completion>
+		
+		<computation>
+		
+			<basic>
+				<add></add>
+				<multiply></multiply>
+				<subtract></subtract>
+				<divide></divide>
+			</basic>
+			<related-computation>
+				<identiefier>PAC</identier>
+				<subtract>value</subtract>
+			</related-computation>
+		</computation>
+		
+	</mapping>
+
+
+</Mapping-Table>

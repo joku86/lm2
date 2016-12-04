@@ -290,18 +290,6 @@
 			<version>1.9.0</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.shiro</groupId>
-			<artifactId>shiro-core</artifactId>
-			<version>1.2.3</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.shiro</groupId>
-			<artifactId>shiro-web</artifactId>
-			<version>1.2.3</version>
-			<scope>compile</scope>
-		</dependency>
 
 
 

@@ -21,9 +21,6 @@ package de.tiq.solutions.livemon.app.main;
  
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -33,8 +30,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.shiro.subject.Subject;
 
 /**
  * Cors filter

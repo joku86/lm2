@@ -11,14 +11,10 @@ import javax.websocket.DeploymentException;
 import javax.ws.rs.core.Application;
 
 import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
-//github.com/joku86/lm2.git
-import org.apache.shiro.web.env.EnvironmentLoaderListener;
 import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
-import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -35,7 +31,6 @@ import org.eclipse.jetty.servlet.FilterHolder;
 //github.com/joku86/lm2.git
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.util.security.Password;
 //github.com/joku86/lm2.git
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -121,16 +116,16 @@ public class Main extends Application {
 	}
 
 	private static void setuShiro(WebAppContext webapp) {
-		webapp.setInitParameter("shiroConfigLocations",
-				Main.class.getClassLoader().getResource("shiro.ini").toString());
-		// IniSecurityManagerFactory factory = new
+//		webapp.setInitParameter("shiroConfigLocations",
+//				Main.class.getClassLoader().getResource("shiro.ini").toString());
+//		// IniSecurityManagerFactory factory = new
 		// IniSecurityManagerFactory(Main.class.getClassLoader().getResource("shiro.ini").toString());
 		// SecurityManager securityManager = factory.getInstance();
 		// org.apache.shiro.SecurityUtils.setSecurityManager(securityManager);
 		// Create and init the Shiro filter that will lookup and use environment
 		// we just created
-		webapp.addFilter("org.apache.shiro.web.servlet.ShiroFilter", "/*", EnumSet.allOf(DispatcherType.class));
-		webapp.addEventListener(new EnvironmentLoaderListener());
+//		webapp.addFilter("org.apache.shiro.web.servlet.ShiroFilter", "/*", EnumSet.allOf(DispatcherType.class));
+//		webapp.addEventListener(new EnvironmentLoaderListener());
 	}
 
 	private static Server setupJettyServer(LmConfigs config) {

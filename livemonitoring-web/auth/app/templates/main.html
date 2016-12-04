@@ -3,6 +3,7 @@
 	<div class="ui-g">
 	<div class="ui-g-10 "> <h1>Web Livemonitoring test!</h1> </div>
 	<div class="ui-g-2" style="text-align: right;padding-top:2em; "><button pButton type="button" (click)="logout()" label="Abmelden"></button> </div>
+	<div class="ui-g-2" style="text-align: right;padding-top:2em; "><button pButton type="button" (click)="logout()" label="Rest-Test"></button> </div>
 	</div>
 	 
 	
@@ -22,7 +23,7 @@
 
 <div class="ui-widget-header ui-helper-clearfix" style="padding:4px 10px;border-bottom: 0 none">
     <i class="fa fa-search" style="float:left;margin:4px 4px 0 0"></i>
-    <input #gb type="text" pInputText size="50" style="float:left" placeholder="Global Filter">
+    <input type="text" pInputText size="50" style="float:left" placeholder="Global Filter">
 </div>	
 
 <p-dataTable [value]="response" [rows]="20" [paginator]="true" [globalFilter]="gb">
