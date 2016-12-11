@@ -2,18 +2,18 @@ package de.tiq.solutions.livemon.plugin;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import de.ext.Component;
-import de.test.ManagePlugins;
+import de.tiq.solutions.livemon.contentdivider.worker.ServiceLoaderInterface;
 
 public class PluginLoader {
 
-	public void getAllFilePlugins() {
-		File loc = new File("ext");
+	public static void main(String[] args) throws IOException {
+		File loc = new File("../ext");
 
 		File[] flist = loc.listFiles(new FileFilter() {
 			public boolean accept(File file) {
@@ -23,19 +23,17 @@ public class PluginLoader {
 		URL[] urls = new URL[flist.length];
 		for (int i = 0; i < flist.length; i++)
 			urls[i] = flist[i].toURI().toURL();
-		URLClassLoader ucl = new URLClassLoader(urls, ManagePlugins.class.getClassLoader());
+		URLClassLoader ucl = new URLClassLoader(urls, PluginLoader.class.getClassLoader());
 
 		System.out.println(urls.length);
-		// entweder Component interface mit vollqualifiezierten namen hier im
-		// projekt oder als extra projekt welches dann auch von den Plugins
-		// eingebunden wird
+		 //Funktion:Service-Provider als extra projekt welches von Extension und dem 
 
-		ServiceLoader<Component> sl = ServiceLoader.load(Component.class, ucl);
-		Iterator<Component> apit = sl.iterator();
+		ServiceLoader<ServiceLoaderInterface> sl = ServiceLoader.load(ServiceLoaderInterface.class, ucl);
+		Iterator<ServiceLoaderInterface> apit = sl.iterator();
 		while (apit.hasNext()) {
-			Component next = apit.next();
+			ServiceLoaderInterface next = apit.next();
 			System.out.println(next.getClass().getName());
-			System.out.println(next.start());
+			next.sayHello();
 		}
 	}
 

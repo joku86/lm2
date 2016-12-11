@@ -295,6 +295,11 @@
 
 
 
+		<dependency>
+			<groupId>de.tiq.solutions</groupId>
+			<artifactId>service-provider</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 </project>

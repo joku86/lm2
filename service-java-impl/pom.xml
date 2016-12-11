@@ -6,10 +6,25 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>service-java-impl</artifactId>
+  <build>
+  <plugins> <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+            <archive>
+                <manifest>
+                    <addClasspath>true</addClasspath>
+<!--                     <mainClass>fully.qualified.MainClass</mainClass> -->
+                </manifest>
+            </archive>
+        </configuration>
+    </plugin>
+    </plugins>
+    </build>
   <dependencies>
   	<dependency>
-  		<groupId>de.tiq.solutions.livemon</groupId>
-  		<artifactId>livemonitoring-model</artifactId>
+  		<groupId>de.jk.extensions</groupId>
+  		<artifactId>service-provider</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
   </dependencies>
