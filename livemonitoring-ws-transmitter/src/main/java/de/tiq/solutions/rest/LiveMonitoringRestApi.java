@@ -72,9 +72,17 @@ public class LiveMonitoringRestApi {
 
 	@GET
 	@Path("logout")
+	@Produces(MediaType.APPLICATION_JSON)
 	public String logout(@Context HttpServletRequest req) {
 		req.getSession(true).invalidate();
 		return "SUCCESS";
 	}
 
+	@GET
+	@Path("xml")
+	@Produces(MediaType.APPLICATION_XML)
+	public RestResponse xml(@Context HttpServletRequest req) {
+		RestResponse restResponse = new RestResponse("HAllo");
+		return restResponse;
+	}
 }

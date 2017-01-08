@@ -238,7 +238,7 @@
 		<dependency>
 			<groupId>javax.websocket</groupId>
 			<artifactId>javax.websocket-api</artifactId>
-			<version>1.1</version>
+			<version>1.1</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty.websocket</groupId>
@@ -292,11 +292,8 @@
 		</dependency>
 
 
-
-
-
 		<dependency>
-			<groupId>de.tiq.solutions</groupId>
+		 <groupId>de.jk.extensions</groupId>
 			<artifactId>service-provider</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
